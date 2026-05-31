@@ -20,14 +20,19 @@
     Create, organize, and track your events in real time. Simple, fast, and built for you.
   </p>
 
-  <!-- Buttons -->
-  <div class="flex gap-4">
+<!-- Buttons -->
+<div class="flex gap-4">
+  <%= if @current_scope do %>
+    <a href="/events" class="btn btn-lg bg-white text-violet-700 font-bold hover:bg-white/90 border-none shadow-lg">
+      Go to Events
+    </a>
+  <% else %>
     <a href="/users/register" class="btn btn-lg bg-white text-violet-700 font-bold hover:bg-white/90 border-none shadow-lg">
       Get Started
     </a>
     <a href="/users/log-in" class="btn btn-lg btn-outline text-white border-white hover:bg-white/20 font-bold">
       Log In
     </a>
-  </div>
-
+  <% end %>
+</div>
 </div>

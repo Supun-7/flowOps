@@ -29,26 +29,38 @@
     </script>
   </head>
   <body>
-    <ul class="menu menu-horizontal w-full relative z-10 flex items-center gap-4 px-4 sm:px-6 lg:px-8 justify-end">
-      <%= if @current_scope do %>
-        <li>
-          {@current_scope.user.email}
-        </li>
-        <li>
-          <.link href={~p"/users/settings"}>Settings</.link>
-        </li>
-        <li>
-          <.link href={~p"/users/log-out"} method="delete">Log out</.link>
-        </li>
-      <% else %>
-        <li>
-          <.link href={~p"/users/register"}>Register</.link>
-        </li>
-        <li>
-          <.link href={~p"/users/log-in"}>Log in</.link>
-        </li>
-      <% end %>
-    </ul>
+  <nav class="w-full flex items-center justify-between px-6 py-4 bg-gradient-to-r from-violet-600 via-fuchsia-500 to-orange-400 shadow-md">
+  <!-- Logo -->
+  <a href="/" class="flex items-center gap-2 text-white font-extrabold text-xl">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+    </svg>
+    FlowOps
+  </a>
+
+  <!-- Right side -->
+  <div class="flex items-center gap-3">
+    <%= if @current_scope do %>
+      <span class="text-white/80 text-sm hidden sm:block">
+        {@current_scope.user.email}
+      </span>
+      <a href={~p"/users/settings"} class="btn btn-sm bg-white/20 text-white border-none hover:bg-white/30">
+        Settings
+      </a>
+      <.link href={~p"/users/log-out"} method="delete" class="btn btn-sm bg-white text-violet-700 font-bold border-none hover:bg-white/90">
+        Log out
+      </.link>
+    <% else %>
+      <a href={~p"/users/register"} class="btn btn-sm bg-white/20 text-white border-none hover:bg-white/30">
+        Register
+      </a>
+      <a href={~p"/users/log-in"} class="btn btn-sm bg-white text-violet-700 font-bold border-none hover:bg-white/90">
+        Log in
+      </a>
+    <% end %>
+    </div>
+  </nav>
     {@inner_content}
   </body>
 </html>
+
