@@ -55,10 +55,9 @@ defmodule FlowopsWeb.Router do
       live "/users/settings", UserLive.Settings, :edit
       live "/users/settings/confirm-email/:token", UserLive.Settings, :confirm_email
       live "/events", EventLive.Index, :index
-      live "/events/new", EventLive.Index, :new
-      live "/events/:id/edit", EventLive.Index, :edit
+      live "/events/new", EventLive.Form, :new
+      live "/events/:id/edit", EventLive.Form, :edit
       live "/events/:id", EventLive.Show, :show
-      live "/events/:id/edit", EventLive.Show, :edit
     end
 
     post "/users/update-password", UserSessionController, :update_password
