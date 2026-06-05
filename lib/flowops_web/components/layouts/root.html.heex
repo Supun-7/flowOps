@@ -4,7 +4,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
-    <.live_title default="Flowops" suffix=" · Phoenix Framework" phx-no-format>{assigns[:page_title]}</.live_title>
+    <.live_title default="FlowOps" suffix=" · FlowOps">
+      {assigns[:page_title]}
+    </.live_title>
     <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/js/app.js"}>
     </script>
@@ -23,44 +25,126 @@
           setTheme(localStorage.getItem("phx:theme") || "system");
         }
         window.addEventListener("storage", (e) => e.key === "phx:theme" && setTheme(e.newValue || "system"));
-        
         window.addEventListener("phx:set-theme", (e) => setTheme(e.target.dataset.phxTheme));
       })();
     </script>
   </head>
   <body>
-  <nav class="w-full flex items-center justify-between px-6 py-4 bg-gradient-to-r from-violet-600 via-fuchsia-500 to-orange-400 shadow-md">
-  <!-- Logo -->
-  <a href="/" class="flex items-center gap-2 text-white font-extrabold text-xl">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-    </svg>
-    FlowOps
-  </a>
 
-  <!-- Right side -->
-  <div class="flex items-center gap-3">
-    <%= if @current_scope do %>
-      <span class="text-white/80 text-sm hidden sm:block">
-        {@current_scope.user.email}
-      </span>
-      <a href={~p"/users/settings"} class="btn btn-sm bg-white/20 text-white border-none hover:bg-white/30">
-        Settings
+    <!-- NAV BAR -->
+    <nav class="w-full flex items-center justify-between px-6 py-4 bg-gradient-to-r from-purple-950 via-purple-800 to-indigo-900 shadow-lg">
+
+      <!-- Logo -->
+      <a href="/" class="flex items-center gap-2 text-white font-extrabold text-xl">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+        FlowOps
       </a>
-      <.link href={~p"/users/log-out"} method="delete" class="btn btn-sm bg-white text-violet-700 font-bold border-none hover:bg-white/90">
-        Log out
-      </.link>
-    <% else %>
-      <a href={~p"/users/register"} class="btn btn-sm bg-white/20 text-white border-none hover:bg-white/30">
-        Register
-      </a>
-      <a href={~p"/users/log-in"} class="btn btn-sm bg-white text-violet-700 font-bold border-none hover:bg-white/90">
-        Log in
-      </a>
-    <% end %>
-    </div>
-  </nav>
+
+      <!-- Middle Links — only when NOT logged in -->
+      <%= if !@current_scope do %>
+        <div class="hidden md:flex items-center gap-8">
+          <a href="/" class="text-slate-300 hover:text-white font-medium text-sm transition">Home</a>
+          <a href="/#about" class="text-slate-300 hover:text-white font-medium text-sm transition">About Us</a>
+          <a href="/#contact" class="text-slate-300 hover:text-white font-medium text-sm transition">Contact Us</a>
+        </div>
+      <% end %>
+
+      <!-- Right Side -->
+      <div class="flex items-center gap-3">
+
+        <!-- Dark/Light Mode Toggle -->
+        <button
+          onclick="
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('phx:theme', next);
+          "
+          class="p-2 rounded-xl bg-white/10 text-slate-300 hover:bg-white/20 hover:text-white transition"
+          title="Toggle dark/light mode"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707.707M6.343 6.343l-.707.707M12 7a5 5 0 100 10A5 5 0 0012 7z" />
+          </svg>
+        </button>
+
+        <%= if @current_scope do %>
+          <span class="text-slate-300 text-sm hidden sm:block">
+            {@current_scope.user.email}
+          </span>
+          <a href={~p"/events"} class="px-4 py-2 rounded-xl bg-white/10 text-white text-sm font-medium hover:bg-white/20 transition">
+            Dashboard
+          </a>
+          <.link href={~p"/users/log-out"} method="delete" class="px-4 py-2 rounded-xl bg-white text-purple-900 text-sm font-bold hover:bg-slate-100 transition">
+            Log out
+          </.link>
+        <% else %>
+          <a href={~p"/users/log-in"} class="px-4 py-2 rounded-xl bg-white/10 text-white text-sm font-medium hover:bg-white/20 transition">
+            Log in
+          </a>
+          <a href={~p"/users/register"} class="px-4 py-2 rounded-xl bg-white text-purple-900 text-sm font-bold hover:bg-slate-100 transition">
+            Register
+          </a>
+        <% end %>
+      </div>
+    </nav>
+
+    <!-- PAGE CONTENT -->
     {@inner_content}
+
+    <!-- FOOTER — only when NOT logged in -->
+    <%= if !@current_scope do %>
+      <footer class="bg-gradient-to-r from-purple-950 via-purple-800 to-indigo-900 text-white">
+        <div class="max-w-6xl mx-auto px-6 py-12">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+            <!-- Brand -->
+            <div>
+              <div class="flex items-center gap-2 font-extrabold text-xl mb-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                FlowOps
+              </div>
+              <p class="text-slate-400 text-sm leading-relaxed">
+                Real-time event management platform. Create, organize, and run events effortlessly.
+              </p>
+            </div>
+
+            <!-- Quick Links -->
+            <div>
+              <h3 class="font-bold text-lg mb-4 text-white">Quick Links</h3>
+              <div class="flex flex-col gap-3">
+                <a href="/" class="text-slate-400 hover:text-white text-sm transition">Home</a>
+                <a href="/#about" class="text-slate-400 hover:text-white text-sm transition">About Us</a>
+                <a href="/#contact" class="text-slate-400 hover:text-white text-sm transition">Contact Us</a>
+                <a href={~p"/users/log-in"} class="text-slate-400 hover:text-white text-sm transition">Log In</a>
+                <a href={~p"/users/register"} class="text-slate-400 hover:text-white text-sm transition">Register</a>
+              </div>
+            </div>
+
+            <!-- Contact Info -->
+            <div>
+              <h3 class="font-bold text-lg mb-4 text-white">Contact</h3>
+              <div class="flex flex-col gap-3 text-slate-400 text-sm">
+                <p>📧 hello@flowops.com</p>
+                <p>🌍 Colombo, Sri Lanka</p>
+                <p>⚡ Built with Elixir & Phoenix</p>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Bottom Bar -->
+          <div class="border-t border-white/10 mt-10 pt-6 text-center text-slate-500 text-sm">
+            © 2026 FlowOps. All rights reserved. Built by Supun Dharmaratne.
+          </div>
+
+        </div>
+      </footer>
+    <% end %>
+
   </body>
 </html>
-

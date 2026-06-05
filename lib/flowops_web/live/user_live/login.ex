@@ -1,8 +1,6 @@
 defmodule FlowopsWeb.UserLive.Login do
   use FlowopsWeb, :live_view
 
-  alias Flowops.Accounts
-
   @impl true
   def render(assigns) do
     ~H"""
@@ -35,51 +33,54 @@ defmodule FlowopsWeb.UserLive.Login do
               </div>
               <h1 class="text-2xl font-extrabold text-gray-800">Welcome back</h1>
               <p class="text-gray-500 text-sm mt-1">
-                <%= if @current_scope do %>
-                  Please reauthenticate to continue.
-                <% else %>
-                  Don't have an account?
-                  <.link navigate={~p"/users/register"} class="text-violet-600 font-semibold hover:underline">
-                    Sign up
-                  </.link>
-                <% end %>
+                Don't have an account?
+                <.link navigate={~p"/users/register"} class="text-violet-600 font-semibold hover:underline">
+                  Sign up
+                </.link>
               </p>
             </div>
 
-            <!-- Dev mail notice -->
-            <div :if={local_mail_adapter?()} class="bg-blue-50 border border-blue-200 text-blue-700 rounded-lg px-4 py-3 text-sm">
-              You are running the local mail adapter.
-              Visit <.link href="/dev/mailbox" class="underline font-semibold">the mailbox page</.link> to see sent emails.
+            <!-- Flash messages -->
+            <div :if={Phoenix.Flash.get(@flash, :error)} class="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm">
+              {Phoenix.Flash.get(@flash, :error)}
+            </div>
+            <div :if={Phoenix.Flash.get(@flash, :info)} class="bg-blue-50 border border-blue-200 text-blue-700 rounded-lg px-4 py-3 text-sm">
+              {Phoenix.Flash.get(@flash, :info)}
             </div>
 
-            <!-- Magic link form -->
-            <.form :let={f} for={@form} id="login_form_magic" action={~p"/users/log-in"} phx-submit="submit_magic" class="space-y-3">
+            <!-- Login Form -->
+            <.form
+              :let={f}
+              for={@form}
+              id="login_form"
+              action={~p"/users/log-in"}
+              phx-submit="submit_password"
+              phx-trigger-action={@trigger_submit}
+              class="space-y-4"
+            >
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <.input readonly={!!@current_scope} field={f[:email]} type="email" autocomplete="username" spellcheck="false" required phx-mounted={JS.focus()} />
-              </div>
-              <button type="submit" class="btn w-full bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white border-none hover:opacity-90">
-                Log in with email →
-              </button>
-            </.form>
-
-            <div class="divider text-gray-400 text-xs">or</div>
-
-            <!-- Password form -->
-            <.form :let={f} for={@form} id="login_form_password" action={~p"/users/log-in"} phx-submit="submit_password" phx-trigger-action={@trigger_submit} class="space-y-3">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <.input readonly={!!@current_scope} field={f[:email]} type="email" autocomplete="username" spellcheck="false" required />
+                <.input
+                  field={f[:email]}
+                  type="email"
+                  autocomplete="username"
+                  spellcheck="false"
+                  required
+                  phx-mounted={JS.focus()}
+                />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                <.input field={@form[:password]} type="password" autocomplete="current-password" spellcheck="false" />
+                <.input
+                  field={@form[:password]}
+                  type="password"
+                  autocomplete="current-password"
+                  spellcheck="false"
+                  required
+                />
               </div>
-              <button type="submit" name={@form[:remember_me].name} value="true" class="btn w-full bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white border-none hover:opacity-90">
-                Log in and stay logged in →
-              </button>
-              <button type="submit" class="btn w-full btn-outline border-violet-400 text-violet-600 hover:bg-violet-50">
-                Log in only this time
+              <button type="submit" class="btn w-full bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white border-none hover:opacity-90 text-base">
+                Log In
               </button>
             </.form>
 
@@ -98,33 +99,11 @@ defmodule FlowopsWeb.UserLive.Login do
         get_in(socket.assigns, [:current_scope, Access.key(:user), Access.key(:email)])
 
     form = to_form(%{"email" => email}, as: "user")
-
     {:ok, assign(socket, form: form, trigger_submit: false)}
   end
 
   @impl true
   def handle_event("submit_password", _params, socket) do
     {:noreply, assign(socket, :trigger_submit, true)}
-  end
-
-  def handle_event("submit_magic", %{"user" => %{"email" => email}}, socket) do
-    if user = Accounts.get_user_by_email(email) do
-      Accounts.deliver_login_instructions(
-        user,
-        &url(~p"/users/log-in/#{&1}")
-      )
-    end
-
-    info =
-      "If your email is in our system, you will receive instructions for logging in shortly."
-
-    {:noreply,
-     socket
-     |> put_flash(:info, info)
-     |> push_navigate(to: ~p"/users/log-in")}
-  end
-
-  defp local_mail_adapter? do
-    Application.get_env(:flowops, Flowops.Mailer)[:adapter] == Swoosh.Adapters.Local
   end
 end
