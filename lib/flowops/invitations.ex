@@ -83,4 +83,37 @@ defmodule Flowops.Invitations do
     |> preload([:user])
     |> Repo.all()
   end
+
+  @doc "Get all committee assignments for a user"
+  def list_committee_assignments(user_id) do
+    CommitteeMember
+    |> where([m], m.user_id == ^user_id)
+    |> preload([:event])
+    |> Repo.all()
+  end
+
+  @doc "Update attendance status"
+  def update_attendance(member_id, status) do
+    member = Repo.get!(CommitteeMember, member_id)
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+    attrs = case status do
+      "present" -> %{attendance_status: "present", joined_at: now}
+      "left"    -> %{attendance_status: "left", left_at: now}
+      _         -> %{attendance_status: status}
+    end
+
+    member
+    |> CommitteeMember.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc "Update work status"
+  def update_work_status(member_id, status) do
+    member = Repo.get!(CommitteeMember, member_id)
+
+    member
+    |> CommitteeMember.changeset(%{work_status: status})
+    |> Repo.update()
+  end
 end

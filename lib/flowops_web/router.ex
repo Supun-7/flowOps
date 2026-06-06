@@ -58,6 +58,8 @@ defmodule FlowopsWeb.Router do
       live "/events/new", EventLive.Form, :new
       live "/events/:id/edit", EventLive.Form, :edit
       live "/events/:id", EventLive.Show, :show
+      live "/member/dashboard", MemberLive.Dashboard, :index
+
     end
 
     post "/users/update-password", UserSessionController, :update_password

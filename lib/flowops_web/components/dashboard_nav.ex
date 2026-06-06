@@ -20,6 +20,9 @@ defmodule FlowopsWeb.DashboardNav do
         <a href="/events" class="text-slate-300 hover:text-white font-medium text-sm transition">
           Dashboard
         </a>
+        <a href="/member/dashboard" class="text-slate-300 hover:text-white font-medium text-sm transition">
+          My Events
+        </a>
         <a href="/events?filter=live" class="text-slate-300 hover:text-white font-medium text-sm transition">
           Live Events
         </a>
@@ -54,6 +57,7 @@ defmodule FlowopsWeb.DashboardNav do
         <.link href={~p"/users/log-out"} method="delete" class="px-4 py-2 rounded-xl bg-white text-purple-900 text-sm font-bold hover:bg-slate-100 transition">
           Log out
         </.link>
+
       </div>
     </nav>
     """
