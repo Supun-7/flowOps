@@ -2,6 +2,7 @@ defmodule FlowopsWeb.EventLive.Show do
   use FlowopsWeb, :live_view
   alias Flowops.Events
   alias Flowops.Invitations
+  alias FlowopsWeb.DashboardNav
 
   @impl true
   def render(assigns) do
@@ -9,29 +10,13 @@ defmodule FlowopsWeb.EventLive.Show do
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div class="fixed inset-0 top-0 bg-gray-50 overflow-y-auto z-40">
 
-        <!-- Nav Bar -->
-        <nav class="w-full flex items-center justify-between px-6 py-4 bg-gradient-to-r from-violet-600 via-fuchsia-500 to-orange-400 shadow-md">
-          <a href="/events" class="flex items-center gap-2 text-white font-extrabold text-xl">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-            FlowOps
-          </a>
-          <div class="flex items-center gap-3">
-            <span class="text-white/80 text-sm hidden sm:block">
-              {@current_scope.user.email}
-            </span>
-            <.link href={~p"/users/log-out"} method="delete" class="btn btn-sm bg-white text-violet-700 font-bold border-none hover:bg-white/90">
-              Log out
-            </.link>
-          </div>
-        </nav>
+        <DashboardNav.dashboard_nav current_scope={@current_scope} />
 
         <div class="max-w-4xl mx-auto p-6">
 
           <!-- Back Button -->
           <div class="mt-4 mb-6">
-            <.link navigate={~p"/events"} class="text-violet-600 hover:underline text-sm font-medium">
+            <.link navigate={~p"/events"} class="text-purple-600 hover:underline text-sm font-medium">
               ← Back to Dashboard
             </.link>
           </div>
@@ -42,7 +27,6 @@ defmodule FlowopsWeb.EventLive.Show do
               <div>
                 <div class="flex items-center gap-3 mb-2">
                   <h1 class="text-3xl font-extrabold text-gray-800">{@event.title}</h1>
-                  <!-- Status Badge -->
                   <span class={[
                     "px-3 py-1 rounded-full text-xs font-bold uppercase",
                     @event.status == "live" && "bg-green-100 text-green-700",
@@ -54,12 +38,11 @@ defmodule FlowopsWeb.EventLive.Show do
                 </div>
                 <p class="text-gray-500 mt-1">{@event.description}</p>
               </div>
-              <.link navigate={~p"/events/#{@event}/edit?return_to=show"} class="btn btn-sm bg-violet-100 text-violet-700 border-none hover:bg-violet-200">
+              <.link navigate={~p"/events/#{@event}/edit?return_to=show"} class="px-4 py-2 rounded-xl bg-purple-100 text-purple-700 text-sm font-bold hover:bg-purple-200 transition">
                 Edit
               </.link>
             </div>
 
-            <!-- Event Details Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
               <div class="bg-gray-50 rounded-xl p-4">
                 <p class="text-xs text-gray-400 uppercase font-semibold mb-1">Location</p>
@@ -80,7 +63,7 @@ defmodule FlowopsWeb.EventLive.Show do
               <div class="bg-gray-50 rounded-xl p-4 sm:col-span-2">
                 <p class="text-xs text-gray-400 uppercase font-semibold mb-1">Google Maps</p>
                 <%= if @event.map_link do %>
-                  <a href={@event.map_link} target="_blank" class="text-violet-600 hover:underline text-sm">
+                  <a href={@event.map_link} target="_blank" class="text-purple-600 hover:underline text-sm">
                     Open in Google Maps →
                   </a>
                 <% else %>
@@ -111,7 +94,7 @@ defmodule FlowopsWeb.EventLive.Show do
                   class="input input-bordered w-full"
                 />
               </div>
-              <button type="submit" class="btn bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white border-none hover:opacity-90">
+              <button type="submit" class="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-700 to-indigo-600 text-white text-sm font-bold hover:opacity-90 transition">
                 Send Invite
               </button>
             </.form>

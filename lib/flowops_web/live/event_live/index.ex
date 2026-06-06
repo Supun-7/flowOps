@@ -1,6 +1,7 @@
 defmodule FlowopsWeb.EventLive.Index do
   use FlowopsWeb, :live_view
   alias Flowops.Events
+  alias FlowopsWeb.DashboardNav
 
   @impl true
   def render(assigns) do
@@ -8,28 +9,8 @@ defmodule FlowopsWeb.EventLive.Index do
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div class="fixed inset-0 top-0 bg-gray-50 overflow-y-auto z-40">
 
-        <!-- Nav Bar -->
-        <nav class="w-full flex items-center justify-between px-6 py-4 bg-gradient-to-r from-violet-600 via-fuchsia-500 to-orange-400 shadow-md">
-          <a href="/" class="flex items-center gap-2 text-white font-extrabold text-xl">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-            FlowOps
-          </a>
-          <div class="flex items-center gap-3">
-            <span class="text-white/80 text-sm hidden sm:block">
-              {@current_scope.user.email}
-            </span>
-            <a href={~p"/users/settings"} class="btn btn-sm bg-white/20 text-white border-none hover:bg-white/30">
-              Settings
-            </a>
-            <.link href={~p"/users/log-out"} method="delete" class="btn btn-sm bg-white text-violet-700 font-bold border-none hover:bg-white/90">
-              Log out
-            </.link>
-          </div>
-        </nav>
+        <DashboardNav.dashboard_nav current_scope={@current_scope} />
 
-        <!-- Main Content -->
         <div class="p-6 max-w-6xl mx-auto">
 
           <!-- Welcome Header -->
@@ -45,8 +26,8 @@ defmodule FlowopsWeb.EventLive.Index do
           <!-- Stats Cards -->
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
             <div class="bg-white rounded-2xl shadow p-6 flex items-center gap-4">
-              <div class="bg-violet-100 rounded-xl p-3">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div class="bg-purple-100 rounded-xl p-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
@@ -57,8 +38,8 @@ defmodule FlowopsWeb.EventLive.Index do
             </div>
 
             <div class="bg-white rounded-2xl shadow p-6 flex items-center gap-4">
-              <div class="bg-fuchsia-100 rounded-xl p-3">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-fuchsia-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div class="bg-indigo-100 rounded-xl p-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
@@ -69,8 +50,8 @@ defmodule FlowopsWeb.EventLive.Index do
             </div>
 
             <div class="bg-white rounded-2xl shadow p-6 flex items-center gap-4">
-              <div class="bg-orange-100 rounded-xl p-3">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div class="bg-slate-100 rounded-xl p-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                 </svg>
               </div>
@@ -84,7 +65,7 @@ defmodule FlowopsWeb.EventLive.Index do
           <!-- Events List Header -->
           <div class="flex items-center justify-between mb-4">
             <h2 class="text-xl font-bold text-gray-800">My Events</h2>
-            <.link navigate={~p"/events/new"} class="btn bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white border-none hover:opacity-90">
+            <.link navigate={~p"/events/new"} class="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-700 to-indigo-600 text-white text-sm font-bold hover:opacity-90 transition">
               + New Event
             </.link>
           </div>
@@ -102,16 +83,16 @@ defmodule FlowopsWeb.EventLive.Index do
                 <p class="text-gray-400 text-xs mt-1">{event.start_time}</p>
               </div>
               <div class="flex gap-2">
-                <.link navigate={~p"/events/#{event}"} class="btn btn-sm btn-outline border-violet-400 text-violet-600 hover:bg-violet-50">
+                <.link navigate={~p"/events/#{event}"} class="px-3 py-1 rounded-xl border border-purple-300 text-purple-700 text-sm font-medium hover:bg-purple-50 transition">
                   View
                 </.link>
-                <.link navigate={~p"/events/#{event}/edit"} class="btn btn-sm bg-violet-100 text-violet-700 border-none hover:bg-violet-200">
+                <.link navigate={~p"/events/#{event}/edit"} class="px-3 py-1 rounded-xl bg-purple-100 text-purple-700 text-sm font-medium hover:bg-purple-200 transition">
                   Edit
                 </.link>
                 <.link
                   phx-click={JS.push("delete", value: %{id: event.id}) |> hide("##{id}")}
                   data-confirm="Are you sure?"
-                  class="btn btn-sm bg-red-100 text-red-600 border-none hover:bg-red-200"
+                  class="px-3 py-1 rounded-xl bg-red-100 text-red-600 text-sm font-medium hover:bg-red-200 transition"
                 >
                   Delete
                 </.link>

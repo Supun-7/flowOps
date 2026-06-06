@@ -2,6 +2,7 @@ defmodule FlowopsWeb.EventLive.Form do
   use FlowopsWeb, :live_view
   alias Flowops.Events
   alias Flowops.Events.Event
+  alias FlowopsWeb.DashboardNav
 
   @impl true
   def render(assigns) do
@@ -9,99 +10,72 @@ defmodule FlowopsWeb.EventLive.Form do
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div class="fixed inset-0 top-0 bg-gray-50 overflow-y-auto z-40">
 
-        <!-- Nav Bar -->
-        <nav class="w-full flex items-center justify-between px-6 py-4 bg-gradient-to-r from-violet-600 via-fuchsia-500 to-orange-400 shadow-md">
-          <a href="/events" class="flex items-center gap-2 text-white font-extrabold text-xl">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-            FlowOps
-          </a>
-          <div class="flex items-center gap-3">
-            <span class="text-white/80 text-sm hidden sm:block">
-              {@current_scope.user.email}
-            </span>
-            <.link href={~p"/users/log-out"} method="delete" class="btn btn-sm bg-white text-violet-700 font-bold border-none hover:bg-white/90">
-              Log out
-            </.link>
-          </div>
-        </nav>
+        <DashboardNav.dashboard_nav current_scope={@current_scope} />
 
-        <!-- Page Content -->
         <div class="max-w-4xl mx-auto p-6">
 
-          <!-- Page Header -->
           <div class="mb-8 mt-4">
             <h1 class="text-3xl font-extrabold text-gray-800">{@page_title}</h1>
             <p class="text-gray-500 mt-1">Fill in the details below to set up your event.</p>
           </div>
 
-          <!-- Form Card -->
           <div class="bg-white rounded-2xl shadow p-8">
             <.form for={@form} id="event-form" phx-change="validate" phx-submit="save" class="space-y-6">
 
-              <!-- Title -->
               <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Event Title *</label>
-                <.input field={@form[:title]} type="text" placeholder="e.g. Annual Tech Conference 2026" class="input input-bordered w-full" />
+                <.input field={@form[:title]} type="text" placeholder="e.g. Annual Tech Conference 2026" />
               </div>
 
-              <!-- Description -->
               <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Description</label>
-                <.input field={@form[:description]} type="textarea" placeholder="Tell people what this event is about..." class="textarea textarea-bordered w-full h-28" />
+                <.input field={@form[:description]} type="textarea" placeholder="Tell people what this event is about..." />
               </div>
 
-              <!-- Location and Capacity -->
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-sm font-semibold text-gray-700 mb-1">Location *</label>
-                  <.input field={@form[:location]} type="text" placeholder="e.g. Colombo, Sri Lanka" class="input input-bordered w-full" />
+                  <.input field={@form[:location]} type="text" placeholder="e.g. Colombo, Sri Lanka" />
                 </div>
                 <div>
                   <label class="block text-sm font-semibold text-gray-700 mb-1">Capacity</label>
-                  <.input field={@form[:capacity]} type="number" placeholder="e.g. 500" class="input input-bordered w-full" />
+                  <.input field={@form[:capacity]} type="number" placeholder="e.g. 500" />
                 </div>
               </div>
 
-              <!-- Start and End Time -->
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-sm font-semibold text-gray-700 mb-1">Start Time *</label>
-                  <.input field={@form[:start_time]} type="datetime-local" class="input input-bordered w-full" />
+                  <.input field={@form[:start_time]} type="datetime-local" />
                 </div>
                 <div>
                   <label class="block text-sm font-semibold text-gray-700 mb-1">End Time *</label>
-                  <.input field={@form[:end_time]} type="datetime-local" class="input input-bordered w-full" />
+                  <.input field={@form[:end_time]} type="datetime-local" />
                 </div>
               </div>
 
-              <!-- Map Link -->
               <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Google Maps Link</label>
-                <.input field={@form[:map_link]} type="text" placeholder="Paste Google Maps URL here..." class="input input-bordered w-full" />
+                <.input field={@form[:map_link]} type="text" placeholder="Paste Google Maps URL here..." />
                 <p class="text-xs text-gray-400 mt-1">Go to Google Maps → Share → Copy Link → Paste here</p>
               </div>
 
-              <!-- Cover Image URL -->
               <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Cover Image URL</label>
-                <.input field={@form[:cover_image]} type="text" placeholder="Paste an image URL for your event cover..." class="input input-bordered w-full" />
+                <.input field={@form[:cover_image]} type="text" placeholder="Paste an image URL for your event cover..." />
                 <p class="text-xs text-gray-400 mt-1">Paste any image URL. Leave empty to use default.</p>
               </div>
 
-              <!-- Status -->
               <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Event Status</label>
-                <.input field={@form[:status]} type="select" options={[{"Upcoming", "upcoming"}, {"Live", "live"}, {"Ended", "ended"}]} class="select select-bordered w-full" />
+                <.input field={@form[:status]} type="select" options={[{"Upcoming", "upcoming"}, {"Live", "live"}, {"Ended", "ended"}]} />
               </div>
 
-              <!-- Buttons -->
               <div class="flex gap-3 pt-2">
-                <button type="submit" phx-disable-with="Saving..." class="btn bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white border-none hover:opacity-90">
+                <button type="submit" phx-disable-with="Saving..." class="px-6 py-2 rounded-xl bg-gradient-to-r from-purple-700 to-indigo-600 text-white font-bold hover:opacity-90 transition">
                   Save Event
                 </button>
-                <.link navigate={return_path(@current_scope, @return_to, @event)} class="btn btn-outline border-gray-300 text-gray-600 hover:bg-gray-50">
+                <.link navigate={return_path(@current_scope, @return_to, @event)} class="px-6 py-2 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-50 transition">
                   Cancel
                 </.link>
               </div>
