@@ -2,6 +2,7 @@ defmodule FlowopsWeb.EventLive.Form do
   use FlowopsWeb, :live_view
   alias Flowops.Events
   alias Flowops.Events.Event
+  alias Flowops.Invitations
   alias FlowopsWeb.DashboardNav
 
   @impl true
@@ -10,7 +11,11 @@ defmodule FlowopsWeb.EventLive.Form do
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div class="fixed inset-0 top-0 bg-gray-50 overflow-y-auto z-40">
 
-        <DashboardNav.dashboard_nav current_scope={@current_scope} />
+        <DashboardNav.dashboard_nav
+          current_scope={@current_scope}
+          has_events={@has_events}
+          has_assignments={@has_assignments}
+        />
 
         <div class="max-w-4xl mx-auto p-6">
 
@@ -91,8 +96,13 @@ defmodule FlowopsWeb.EventLive.Form do
 
   @impl true
   def mount(params, _session, socket) do
+    user_id = socket.assigns.current_scope.user.id
+    events = Events.list_events(socket.assigns.current_scope)
+
     {:ok,
      socket
+     |> assign(:has_events, length(events) > 0)
+     |> assign(:has_assignments, length(Invitations.list_committee_assignments(user_id)) > 0)
      |> assign(:return_to, return_to(params["return_to"]))
      |> apply_action(socket.assigns.live_action, params)}
   end

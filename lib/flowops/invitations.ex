@@ -92,6 +92,25 @@ defmodule Flowops.Invitations do
     |> Repo.all()
   end
 
+  @doc "Subscribe to live updates for an event"
+  def subscribe_event(event_id) do
+    Phoenix.PubSub.subscribe(Flowops.PubSub, "event:#{event_id}")
+  end
+
+  @doc "Subscribe to updates for a specific member"
+  def subscribe_member(user_id) do
+    Phoenix.PubSub.subscribe(Flowops.PubSub, "member:#{user_id}")
+  end
+
+  @doc "Broadcast member update to all subscribers"
+  def broadcast_member_update(event_id) do
+    Phoenix.PubSub.broadcast(
+      Flowops.PubSub,
+      "event:#{event_id}",
+      {:member_updated, event_id}
+    )
+  end
+
   @doc "Update attendance status and broadcast"
   def update_attendance(member_id, status) do
     member = Repo.get!(CommitteeMember, member_id)
@@ -121,19 +140,5 @@ defmodule Flowops.Invitations do
         {:ok, updated_member}
       error -> error
     end
-  end
-
-  @doc "Subscribe to live updates for an event"
-  def subscribe_event(event_id) do
-    Phoenix.PubSub.subscribe(Flowops.PubSub, "event:#{event_id}")
-  end
-
-  @doc "Broadcast member update to all subscribers"
-  def broadcast_member_update(event_id) do
-    Phoenix.PubSub.broadcast(
-      Flowops.PubSub,
-      "event:#{event_id}",
-      {:member_updated, event_id}
-    )
   end
 end

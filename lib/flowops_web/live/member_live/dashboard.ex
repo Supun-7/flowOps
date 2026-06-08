@@ -1,5 +1,6 @@
 defmodule FlowopsWeb.MemberLive.Dashboard do
   use FlowopsWeb, :live_view
+  alias Flowops.Events
   alias Flowops.Invitations
   alias FlowopsWeb.DashboardNav
 
@@ -9,11 +10,14 @@ defmodule FlowopsWeb.MemberLive.Dashboard do
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div class="fixed inset-0 top-0 bg-gray-50 overflow-y-auto z-40">
 
-        <DashboardNav.dashboard_nav current_scope={@current_scope} />
+        <DashboardNav.dashboard_nav
+          current_scope={@current_scope}
+          has_events={@has_events}
+          has_assignments={@has_assignments}
+        />
 
         <div class="max-w-4xl mx-auto p-6">
 
-          <!-- Header -->
           <div class="mb-8 mt-4">
             <h1 class="text-3xl font-extrabold text-gray-800">My Member Dashboard 👷</h1>
             <p class="text-gray-500 mt-1">{@current_scope.user.email}</p>
@@ -36,9 +40,7 @@ defmodule FlowopsWeb.MemberLive.Dashboard do
                 <div>
                   <p class="font-bold text-gray-800">{invitation.event.title}</p>
                   <p class="text-sm text-gray-500">Role: {invitation.role || "Not specified"}</p>
-                  <p class="text-sm text-gray-500">
-                    Invited by: {invitation.invited_by_user.email}
-                  </p>
+                  <p class="text-sm text-gray-500">Invited by: {invitation.invited_by_user.email}</p>
                   <p class="text-xs text-gray-400 mt-1">{invitation.event.start_time}</p>
                 </div>
                 <div class="flex gap-2">
@@ -65,7 +67,7 @@ defmodule FlowopsWeb.MemberLive.Dashboard do
             </div>
           </div>
 
-          <!-- My Events -->
+          <!-- My Assigned Events -->
           <div class="bg-white rounded-2xl shadow p-6">
             <h2 class="text-xl font-bold text-gray-800 mb-4">My Assigned Events</h2>
 
@@ -74,7 +76,6 @@ defmodule FlowopsWeb.MemberLive.Dashboard do
                 :for={member <- @committee_assignments}
                 class="bg-gray-50 rounded-xl p-5 border border-gray-100"
               >
-                <!-- Event Info -->
                 <div class="flex items-start justify-between mb-4">
                   <div>
                     <h3 class="text-lg font-bold text-gray-800">{member.event.title}</h3>
@@ -84,7 +85,6 @@ defmodule FlowopsWeb.MemberLive.Dashboard do
                       Role: {member.role || "Not specified"}
                     </p>
                   </div>
-                  <!-- Event Status Badge -->
                   <span class={[
                     "px-3 py-1 rounded-full text-xs font-bold uppercase",
                     member.event.status == "live" && "bg-green-100 text-green-700",
@@ -95,7 +95,7 @@ defmodule FlowopsWeb.MemberLive.Dashboard do
                   </span>
                 </div>
 
-                <!-- My Status -->
+                <!-- Current Status -->
                 <div class="flex items-center gap-3 mb-4">
                   <span class={[
                     "px-3 py-1 rounded-full text-xs font-bold uppercase",
@@ -105,7 +105,8 @@ defmodule FlowopsWeb.MemberLive.Dashboard do
                   ]}>
                     {member.attendance_status}
                   </span>
-                  <span class={[
+
+                  <span :if={member.attendance_status == "present"} class={[
                     "px-3 py-1 rounded-full text-xs font-bold uppercase",
                     member.work_status == "available" && "bg-blue-100 text-blue-700",
                     member.work_status == "busy" && "bg-orange-100 text-orange-600"
@@ -116,7 +117,6 @@ defmodule FlowopsWeb.MemberLive.Dashboard do
 
                 <!-- Action Buttons -->
                 <div class="flex flex-wrap gap-2">
-                  <!-- Attendance Buttons -->
                   <button
                     :if={member.attendance_status == "absent"}
                     phx-click="mark_present"
@@ -125,31 +125,40 @@ defmodule FlowopsWeb.MemberLive.Dashboard do
                   >
                     ✅ Mark Present
                   </button>
-                  <button
-                    :if={member.attendance_status == "present"}
-                    phx-click="mark_left"
-                    phx-value-id={member.id}
-                    class="px-4 py-2 rounded-xl bg-red-500 text-white text-sm font-bold hover:bg-red-600 transition"
-                  >
-                    🚪 Mark Left
-                  </button>
 
-                  <!-- Work Status Buttons -->
+                  <%= if member.attendance_status == "present" do %>
+                    <button
+                      phx-click="mark_left"
+                      phx-value-id={member.id}
+                      class="px-4 py-2 rounded-xl bg-red-500 text-white text-sm font-bold hover:bg-red-600 transition"
+                    >
+                      🚪 Mark Left
+                    </button>
+                    <button
+                      :if={member.work_status == "available"}
+                      phx-click="mark_busy"
+                      phx-value-id={member.id}
+                      class="px-4 py-2 rounded-xl bg-orange-500 text-white text-sm font-bold hover:bg-orange-600 transition"
+                    >
+                      🔴 Mark Busy
+                    </button>
+                    <button
+                      :if={member.work_status == "busy"}
+                      phx-click="mark_available"
+                      phx-value-id={member.id}
+                      class="px-4 py-2 rounded-xl bg-blue-500 text-white text-sm font-bold hover:bg-blue-600 transition"
+                    >
+                      🟢 Mark Available
+                    </button>
+                  <% end %>
+
                   <button
-                    :if={member.work_status == "available"}
-                    phx-click="mark_busy"
+                    :if={member.attendance_status == "left"}
+                    phx-click="mark_present"
                     phx-value-id={member.id}
-                    class="px-4 py-2 rounded-xl bg-orange-500 text-white text-sm font-bold hover:bg-orange-600 transition"
+                    class="px-4 py-2 rounded-xl bg-purple-600 text-white text-sm font-bold hover:bg-purple-700 transition"
                   >
-                    🔴 Mark Busy
-                  </button>
-                  <button
-                    :if={member.work_status == "busy"}
-                    phx-click="mark_available"
-                    phx-value-id={member.id}
-                    class="px-4 py-2 rounded-xl bg-blue-500 text-white text-sm font-bold hover:bg-blue-600 transition"
-                  >
-                    🟢 Mark Available
+                    🔄 Re-enter Premises
                   </button>
                 </div>
 
@@ -172,9 +181,17 @@ defmodule FlowopsWeb.MemberLive.Dashboard do
   def mount(_params, _session, socket) do
     user_id = socket.assigns.current_scope.user.id
 
+    if connected?(socket) do
+      Invitations.subscribe_member(user_id)
+    end
+
+    events = Events.list_events(socket.assigns.current_scope)
+
     {:ok,
      socket
      |> assign(:page_title, "Member Dashboard")
+     |> assign(:has_events, length(events) > 0)
+     |> assign(:has_assignments, length(Invitations.list_committee_assignments(user_id)) > 0)
      |> assign(:pending_invitations, Invitations.list_pending_invitations(user_id))
      |> assign(:committee_assignments, Invitations.list_committee_assignments(user_id))}
   end
@@ -189,6 +206,7 @@ defmodule FlowopsWeb.MemberLive.Dashboard do
          socket
          |> put_flash(:info, "Invitation accepted!")
          |> assign(:pending_invitations, Invitations.list_pending_invitations(user_id))
+         |> assign(:has_assignments, true)
          |> assign(:committee_assignments, Invitations.list_committee_assignments(user_id))}
 
       {:error, _} ->
@@ -232,6 +250,12 @@ defmodule FlowopsWeb.MemberLive.Dashboard do
   def handle_event("mark_available", %{"id" => id}, socket) do
     user_id = socket.assigns.current_scope.user.id
     Invitations.update_work_status(String.to_integer(id), "available")
+    {:noreply, assign(socket, :committee_assignments, Invitations.list_committee_assignments(user_id))}
+  end
+
+  @impl true
+  def handle_info({:member_updated, _event_id}, socket) do
+    user_id = socket.assigns.current_scope.user.id
     {:noreply, assign(socket, :committee_assignments, Invitations.list_committee_assignments(user_id))}
   end
 end

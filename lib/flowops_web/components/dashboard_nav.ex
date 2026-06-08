@@ -2,13 +2,15 @@ defmodule FlowopsWeb.DashboardNav do
   use FlowopsWeb, :html
 
   attr :current_scope, :any, required: true
+  attr :has_events, :boolean, default: false
+  attr :has_assignments, :boolean, default: false
 
   def dashboard_nav(assigns) do
     ~H"""
     <nav class="w-full flex items-center justify-between px-6 py-4 bg-gradient-to-r from-purple-950 via-purple-800 to-indigo-900 shadow-lg">
 
       <!-- Logo -->
-      <a href="/events" class="flex items-center gap-2 text-white font-extrabold text-xl">
+      <a href="/" class="flex items-center gap-2 text-white font-extrabold text-xl">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
         </svg>
@@ -17,14 +19,14 @@ defmodule FlowopsWeb.DashboardNav do
 
       <!-- Middle Links -->
       <div class="hidden md:flex items-center gap-8">
-        <a href="/events" class="text-slate-300 hover:text-white font-medium text-sm transition">
-          Dashboard
-        </a>
-        <a href="/member/dashboard" class="text-slate-300 hover:text-white font-medium text-sm transition">
+        <a :if={@has_events} href="/events" class="text-slate-300 hover:text-white font-medium text-sm transition">
           My Events
         </a>
-        <a href="/events?filter=live" class="text-slate-300 hover:text-white font-medium text-sm transition">
-          Live Events
+        <a :if={@has_assignments} href="/member/dashboard" class="text-slate-300 hover:text-white font-medium text-sm transition">
+          My Assignments
+        </a>
+        <a href="/events/new" class="text-slate-300 hover:text-white font-medium text-sm transition">
+          New Event
         </a>
         <a href="/users/settings" class="text-slate-300 hover:text-white font-medium text-sm transition">
           Settings

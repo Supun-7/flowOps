@@ -1,6 +1,7 @@
 defmodule FlowopsWeb.EventLive.Index do
   use FlowopsWeb, :live_view
   alias Flowops.Events
+  alias Flowops.Invitations
   alias FlowopsWeb.DashboardNav
 
   @impl true
@@ -9,18 +10,17 @@ defmodule FlowopsWeb.EventLive.Index do
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div class="fixed inset-0 top-0 bg-gray-50 overflow-y-auto z-40">
 
-        <DashboardNav.dashboard_nav current_scope={@current_scope} />
+        <DashboardNav.dashboard_nav
+          current_scope={@current_scope}
+          has_events={@has_events}
+          has_assignments={@has_assignments}
+        />
 
         <div class="p-6 max-w-6xl mx-auto">
 
-          <!-- Welcome Header -->
           <div class="mb-8 mt-4">
-            <h1 class="text-3xl font-extrabold text-gray-800">
-              Welcome back! 👋
-            </h1>
-            <p class="text-gray-500 mt-1">
-              {@current_scope.user.email}
-            </p>
+            <h1 class="text-3xl font-extrabold text-gray-800">Welcome back! 👋</h1>
+            <p class="text-gray-500 mt-1">{@current_scope.user.email}</p>
           </div>
 
           <!-- Stats Cards -->
@@ -99,7 +99,6 @@ defmodule FlowopsWeb.EventLive.Index do
               </div>
             </div>
 
-            <!-- Empty state -->
             <div :if={!@has_events} class="text-center py-16 text-gray-400">
               <p class="text-lg font-medium">No events yet</p>
               <p class="text-sm mt-1">Create your first event to get started</p>
@@ -118,6 +117,7 @@ defmodule FlowopsWeb.EventLive.Index do
       Events.subscribe_events(socket.assigns.current_scope)
     end
 
+    user_id = socket.assigns.current_scope.user.id
     events = list_events(socket.assigns.current_scope)
     now = NaiveDateTime.utc_now()
 
@@ -126,6 +126,7 @@ defmodule FlowopsWeb.EventLive.Index do
      |> assign(:page_title, "Dashboard")
      |> assign(:total_events, length(events))
      |> assign(:has_events, length(events) > 0)
+     |> assign(:has_assignments, length(Invitations.list_committee_assignments(user_id)) > 0)
      |> assign(:upcoming_events, Enum.count(events, &(NaiveDateTime.compare(&1.start_time, now) == :gt)))
      |> assign(:past_events, Enum.count(events, &(NaiveDateTime.compare(&1.start_time, now) == :lt)))
      |> stream(:events, events)}
@@ -143,11 +144,13 @@ defmodule FlowopsWeb.EventLive.Index do
       when type in [:created, :updated, :deleted] do
     events = list_events(socket.assigns.current_scope)
     now = NaiveDateTime.utc_now()
+    user_id = socket.assigns.current_scope.user.id
 
     {:noreply,
      socket
      |> assign(:total_events, length(events))
      |> assign(:has_events, length(events) > 0)
+     |> assign(:has_assignments, length(Invitations.list_committee_assignments(user_id)) > 0)
      |> assign(:upcoming_events, Enum.count(events, &(NaiveDateTime.compare(&1.start_time, now) == :gt)))
      |> assign(:past_events, Enum.count(events, &(NaiveDateTime.compare(&1.start_time, now) == :lt)))
      |> stream(:events, events, reset: true)}

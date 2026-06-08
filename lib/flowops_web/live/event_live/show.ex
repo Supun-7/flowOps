@@ -10,11 +10,14 @@ defmodule FlowopsWeb.EventLive.Show do
     <Layouts.app flash={@flash} current_scope={@current_scope}>
       <div class="fixed inset-0 top-0 bg-gray-50 overflow-y-auto z-40">
 
-        <DashboardNav.dashboard_nav current_scope={@current_scope} />
+        <DashboardNav.dashboard_nav
+          current_scope={@current_scope}
+          has_events={@has_events}
+          has_assignments={@has_assignments}
+        />
 
         <div class="max-w-4xl mx-auto p-6">
 
-          <!-- Back Button -->
           <div class="mt-4 mb-6">
             <.link navigate={~p"/events"} class="text-purple-600 hover:underline text-sm font-medium">
               ← Back to Dashboard
@@ -124,11 +127,10 @@ defmodule FlowopsWeb.EventLive.Show do
             </div>
           </div>
 
-          <!-- Live Committee Members -->
+          <!-- Live Committee Status -->
           <div class="bg-white rounded-2xl shadow p-6">
             <div class="flex items-center gap-3 mb-4">
               <h2 class="text-xl font-bold text-gray-800">Live Committee Status</h2>
-              <!-- Live indicator -->
               <span :if={@event.status == "live"} class="flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">
                 <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                 LIVE
@@ -183,13 +185,18 @@ defmodule FlowopsWeb.EventLive.Show do
       Invitations.subscribe_event(event.id)
     end
 
+    user_id = socket.assigns.current_scope.user.id
+    events = Events.list_events(socket.assigns.current_scope)
+
     {:ok,
      socket
      |> assign(:page_title, event.title)
      |> assign(:event, event)
      |> assign(:invite_form, to_form(%{}, as: "invite"))
      |> assign(:invitations, Invitations.list_invitations(event.id))
-     |> assign(:committee_members, Invitations.list_committee_members(event.id))}
+     |> assign(:committee_members, Invitations.list_committee_members(event.id))
+     |> assign(:has_events, length(events) > 0)
+     |> assign(:has_assignments, length(Invitations.list_committee_assignments(user_id)) > 0)}
   end
 
   @impl true
