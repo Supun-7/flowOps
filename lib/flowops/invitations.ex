@@ -92,7 +92,7 @@ defmodule Flowops.Invitations do
     |> Repo.all()
   end
 
-  @doc "Update attendance status"
+  @doc "Update attendance status and broadcast"
   def update_attendance(member_id, status) do
     member = Repo.get!(CommitteeMember, member_id)
     now = DateTime.utc_now() |> DateTime.truncate(:second)
@@ -103,17 +103,37 @@ defmodule Flowops.Invitations do
       _         -> %{attendance_status: status}
     end
 
-    member
-    |> CommitteeMember.changeset(attrs)
-    |> Repo.update()
+    case member |> CommitteeMember.changeset(attrs) |> Repo.update() do
+      {:ok, updated_member} ->
+        broadcast_member_update(updated_member.event_id)
+        {:ok, updated_member}
+      error -> error
+    end
   end
 
-  @doc "Update work status"
+  @doc "Update work status and broadcast"
   def update_work_status(member_id, status) do
     member = Repo.get!(CommitteeMember, member_id)
 
-    member
-    |> CommitteeMember.changeset(%{work_status: status})
-    |> Repo.update()
+    case member |> CommitteeMember.changeset(%{work_status: status}) |> Repo.update() do
+      {:ok, updated_member} ->
+        broadcast_member_update(updated_member.event_id)
+        {:ok, updated_member}
+      error -> error
+    end
+  end
+
+  @doc "Subscribe to live updates for an event"
+  def subscribe_event(event_id) do
+    Phoenix.PubSub.subscribe(Flowops.PubSub, "event:#{event_id}")
+  end
+
+  @doc "Broadcast member update to all subscribers"
+  def broadcast_member_update(event_id) do
+    Phoenix.PubSub.broadcast(
+      Flowops.PubSub,
+      "event:#{event_id}",
+      {:member_updated, event_id}
+    )
   end
 end

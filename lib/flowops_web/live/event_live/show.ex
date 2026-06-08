@@ -124,14 +124,25 @@ defmodule FlowopsWeb.EventLive.Show do
             </div>
           </div>
 
-          <!-- Committee Members -->
+          <!-- Live Committee Members -->
           <div class="bg-white rounded-2xl shadow p-6">
-            <h2 class="text-xl font-bold text-gray-800 mb-4">Committee Members</h2>
+            <div class="flex items-center gap-3 mb-4">
+              <h2 class="text-xl font-bold text-gray-800">Live Committee Status</h2>
+              <!-- Live indicator -->
+              <span :if={@event.status == "live"} class="flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">
+                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                LIVE
+              </span>
+            </div>
+
             <div class="space-y-3">
               <div :for={member <- @committee_members} class="flex items-center justify-between bg-gray-50 rounded-xl p-4">
                 <div>
                   <p class="font-semibold text-gray-800">{member.user.email}</p>
                   <p class="text-sm text-gray-500">{member.role || "No role assigned"}</p>
+                  <p :if={member.joined_at} class="text-xs text-gray-400 mt-1">
+                    Joined at: {member.joined_at}
+                  </p>
                 </div>
                 <div class="flex gap-2">
                   <span class={[
@@ -152,7 +163,7 @@ defmodule FlowopsWeb.EventLive.Show do
                 </div>
               </div>
               <div :if={Enum.empty?(@committee_members)} class="text-center py-8 text-gray-400">
-                <p>No committee members yet. Invite people above.</p>
+                <p>No committee members yet.</p>
               </div>
             </div>
           </div>
@@ -165,11 +176,12 @@ defmodule FlowopsWeb.EventLive.Show do
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
+    event = Events.get_event!(socket.assigns.current_scope, id)
+
     if connected?(socket) do
       Events.subscribe_events(socket.assigns.current_scope)
+      Invitations.subscribe_event(event.id)
     end
-
-    event = Events.get_event!(socket.assigns.current_scope, id)
 
     {:ok,
      socket
@@ -201,6 +213,11 @@ defmodule FlowopsWeb.EventLive.Show do
   end
 
   @impl true
+  def handle_info({:member_updated, event_id}, socket) do
+    {:noreply,
+     assign(socket, :committee_members, Invitations.list_committee_members(event_id))}
+  end
+
   def handle_info(
         {:updated, %Flowops.Events.Event{id: id} = event},
         %{assigns: %{event: %{id: id}}} = socket
