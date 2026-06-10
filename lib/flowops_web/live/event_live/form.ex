@@ -41,6 +41,7 @@ defmodule FlowopsWeb.EventLive.Form do
                 <div>
                   <label class="block text-sm font-semibold text-gray-700 mb-1">Location *</label>
                   <.input field={@form[:location]} type="text" placeholder="e.g. Colombo, Sri Lanka" />
+                  <p class="text-xs text-gray-400 mt-1">This will be used to show the map automatically.</p>
                 </div>
                 <div>
                   <label class="block text-sm font-semibold text-gray-700 mb-1">Capacity</label>
@@ -57,12 +58,6 @@ defmodule FlowopsWeb.EventLive.Form do
                   <label class="block text-sm font-semibold text-gray-700 mb-1">End Time *</label>
                   <.input field={@form[:end_time]} type="datetime-local" />
                 </div>
-              </div>
-
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Google Maps Link</label>
-                <.input field={@form[:map_link]} type="text" placeholder="Paste Google Maps URL here..." />
-                <p class="text-xs text-gray-400 mt-1">Go to Google Maps → Share → Copy Link → Paste here</p>
               </div>
 
               <div>

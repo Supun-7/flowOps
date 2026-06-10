@@ -71,11 +71,12 @@ defmodule FlowopsWeb.MemberLive.Dashboard do
           <div class="bg-white rounded-2xl shadow p-6">
             <h2 class="text-xl font-bold text-gray-800 mb-4">My Assigned Events</h2>
 
-            <div class="space-y-4">
+            <div class="space-y-6">
               <div
                 :for={member <- @committee_assignments}
                 class="bg-gray-50 rounded-xl p-5 border border-gray-100"
               >
+                <!-- Event Info -->
                 <div class="flex items-start justify-between mb-4">
                   <div>
                     <h3 class="text-lg font-bold text-gray-800">{member.event.title}</h3>
@@ -95,6 +96,17 @@ defmodule FlowopsWeb.MemberLive.Dashboard do
                   </span>
                 </div>
 
+                <!-- Location Map -->
+                <div class="rounded-xl overflow-hidden border border-gray-200 w-full h-48 mb-3">
+                  <iframe src={"https://www.openstreetmap.org/export/embed.html?query=#{URI.encode(member.event.location)}&layer=mapnik"} width="100%" height="100%" style="border:0;" loading="lazy" allowfullscreen></iframe>
+                </div>
+                <div class="flex items-center justify-between mb-4">
+                  <p class="text-xs text-gray-400">📍 {member.event.location}</p>
+                  <a href={"https://www.openstreetmap.org/search?query=#{URI.encode(member.event.location)}"} target="_blank" class="text-purple-600 hover:underline text-xs font-medium">
+                    Open in OpenStreetMap →
+                  </a>
+                </div>
+
                 <!-- Current Status -->
                 <div class="flex items-center gap-3 mb-4">
                   <span class={[
@@ -105,7 +117,6 @@ defmodule FlowopsWeb.MemberLive.Dashboard do
                   ]}>
                     {member.attendance_status}
                   </span>
-
                   <span :if={member.attendance_status == "present"} class={[
                     "px-3 py-1 rounded-full text-xs font-bold uppercase",
                     member.work_status == "available" && "bg-blue-100 text-blue-700",

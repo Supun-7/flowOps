@@ -46,6 +46,7 @@ defmodule FlowopsWeb.EventLive.Show do
               </.link>
             </div>
 
+            <!-- Event Details Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
               <div class="bg-gray-50 rounded-xl p-4">
                 <p class="text-xs text-gray-400 uppercase font-semibold mb-1">Location</p>
@@ -64,14 +65,16 @@ defmodule FlowopsWeb.EventLive.Show do
                 <p class="text-gray-700 font-medium">{@event.capacity || "Not set"}</p>
               </div>
               <div class="bg-gray-50 rounded-xl p-4 sm:col-span-2">
-                <p class="text-xs text-gray-400 uppercase font-semibold mb-1">Google Maps</p>
-                <%= if @event.map_link do %>
-                  <a href={@event.map_link} target="_blank" class="text-purple-600 hover:underline text-sm">
-                    Open in Google Maps →
+                <p class="text-xs text-gray-400 uppercase font-semibold mb-3">Location Map</p>
+                <div class="rounded-xl overflow-hidden border border-gray-200 w-full h-64">
+                  <iframe src={"https://www.openstreetmap.org/export/embed.html?query=#{URI.encode(@event.location)}&layer=mapnik"} width="100%" height="100%" style="border:0;" loading="lazy" allowfullscreen></iframe>
+                </div>
+                <div class="flex items-center justify-between mt-2">
+                  <p class="text-xs text-gray-400">📍 {@event.location}</p>
+                  <a href={"https://www.openstreetmap.org/search?query=#{URI.encode(@event.location)}"} target="_blank" class="text-purple-600 hover:underline text-xs font-medium">
+                    Open in OpenStreetMap →
                   </a>
-                <% else %>
-                  <p class="text-gray-400 text-sm">No map link added</p>
-                <% end %>
+                </div>
               </div>
             </div>
           </div>
@@ -81,21 +84,10 @@ defmodule FlowopsWeb.EventLive.Show do
             <h2 class="text-xl font-bold text-gray-800 mb-4">Invite Committee Member</h2>
             <.form for={@invite_form} phx-submit="invite_member" class="flex gap-3 flex-wrap">
               <div class="flex-1 min-w-48">
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Enter member's email address..."
-                  class="input input-bordered w-full"
-                  required
-                />
+                <input type="email" name="email" placeholder="Enter member's email address..." class="input input-bordered w-full" required />
               </div>
               <div class="w-48">
-                <input
-                  type="text"
-                  name="role"
-                  placeholder="Role (e.g. Security)"
-                  class="input input-bordered w-full"
-                />
+                <input type="text" name="role" placeholder="Role (e.g. Security)" class="input input-bordered w-full" />
               </div>
               <button type="submit" class="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-700 to-indigo-600 text-white text-sm font-bold hover:opacity-90 transition">
                 Send Invite
@@ -136,15 +128,12 @@ defmodule FlowopsWeb.EventLive.Show do
                 LIVE
               </span>
             </div>
-
             <div class="space-y-3">
               <div :for={member <- @committee_members} class="flex items-center justify-between bg-gray-50 rounded-xl p-4">
                 <div>
                   <p class="font-semibold text-gray-800">{member.user.email}</p>
                   <p class="text-sm text-gray-500">{member.role || "No role assigned"}</p>
-                  <p :if={member.joined_at} class="text-xs text-gray-400 mt-1">
-                    Joined at: {member.joined_at}
-                  </p>
+                  <p :if={member.joined_at} class="text-xs text-gray-400 mt-1">Joined at: {member.joined_at}</p>
                 </div>
                 <div class="flex gap-2">
                   <span class={[
@@ -221,8 +210,7 @@ defmodule FlowopsWeb.EventLive.Show do
 
   @impl true
   def handle_info({:member_updated, event_id}, socket) do
-    {:noreply,
-     assign(socket, :committee_members, Invitations.list_committee_members(event_id))}
+    {:noreply, assign(socket, :committee_members, Invitations.list_committee_members(event_id))}
   end
 
   def handle_info(
