@@ -8,11 +8,15 @@ case Accounts.get_user_by_email("admin@flowops.com") do
     %User{}
     |> User.email_changeset(%{email: "admin@flowops.com"})
     |> User.password_changeset(%{password: "Admin@2024Secure!"})
+    |> Ecto.Changeset.put_change(:is_admin, true)
     |> Repo.insert!()
     IO.puts("✅ Admin user created: admin@flowops.com")
 
-  _user ->
-    IO.puts("ℹ️  Admin user already exists, skipping.")
+  user ->
+    user
+    |> Ecto.Changeset.change(%{is_admin: true})
+    |> Repo.update!()
+    IO.puts("ℹ️  Admin user updated with is_admin: true")
 end
 
 # Create sample committee member
