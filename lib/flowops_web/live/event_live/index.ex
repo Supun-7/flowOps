@@ -14,6 +14,7 @@ defmodule FlowopsWeb.EventLive.Index do
           current_scope={@current_scope}
           has_events={@has_events}
           has_assignments={@has_assignments}
+          pending_count={@pending_count}
         />
 
         <div class="p-6 max-w-6xl mx-auto">
@@ -127,6 +128,7 @@ defmodule FlowopsWeb.EventLive.Index do
      |> assign(:total_events, length(events))
      |> assign(:has_events, length(events) > 0)
      |> assign(:has_assignments, length(Invitations.list_committee_assignments(user_id)) > 0)
+     |> assign(:pending_count, length(Invitations.list_pending_invitations(user_id)))
      |> assign(:upcoming_events, Enum.count(events, &(NaiveDateTime.compare(&1.start_time, now) == :gt)))
      |> assign(:past_events, Enum.count(events, &(NaiveDateTime.compare(&1.start_time, now) == :lt)))
      |> stream(:events, events)}
@@ -142,15 +144,16 @@ defmodule FlowopsWeb.EventLive.Index do
   @impl true
   def handle_info({type, %Flowops.Events.Event{}}, socket)
       when type in [:created, :updated, :deleted] do
+    user_id = socket.assigns.current_scope.user.id
     events = list_events(socket.assigns.current_scope)
     now = NaiveDateTime.utc_now()
-    user_id = socket.assigns.current_scope.user.id
 
     {:noreply,
      socket
      |> assign(:total_events, length(events))
      |> assign(:has_events, length(events) > 0)
      |> assign(:has_assignments, length(Invitations.list_committee_assignments(user_id)) > 0)
+     |> assign(:pending_count, length(Invitations.list_pending_invitations(user_id)))
      |> assign(:upcoming_events, Enum.count(events, &(NaiveDateTime.compare(&1.start_time, now) == :gt)))
      |> assign(:past_events, Enum.count(events, &(NaiveDateTime.compare(&1.start_time, now) == :lt)))
      |> stream(:events, events, reset: true)}

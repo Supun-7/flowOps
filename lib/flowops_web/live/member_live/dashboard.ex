@@ -14,6 +14,7 @@ defmodule FlowopsWeb.MemberLive.Dashboard do
           current_scope={@current_scope}
           has_events={@has_events}
           has_assignments={@has_assignments}
+          pending_count={@pending_count}
         />
 
         <div class="max-w-4xl mx-auto p-6">
@@ -44,18 +45,10 @@ defmodule FlowopsWeb.MemberLive.Dashboard do
                   <p class="text-xs text-gray-400 mt-1">{invitation.event.start_time}</p>
                 </div>
                 <div class="flex gap-2">
-                  <button
-                    phx-click="accept_invitation"
-                    phx-value-id={invitation.id}
-                    class="px-4 py-2 rounded-xl bg-green-600 text-white text-sm font-bold hover:bg-green-700 transition"
-                  >
+                  <button phx-click="accept_invitation" phx-value-id={invitation.id} class="px-4 py-2 rounded-xl bg-green-600 text-white text-sm font-bold hover:bg-green-700 transition">
                     Accept
                   </button>
-                  <button
-                    phx-click="decline_invitation"
-                    phx-value-id={invitation.id}
-                    class="px-4 py-2 rounded-xl bg-red-100 text-red-600 text-sm font-bold hover:bg-red-200 transition"
-                  >
+                  <button phx-click="decline_invitation" phx-value-id={invitation.id} class="px-4 py-2 rounded-xl bg-red-100 text-red-600 text-sm font-bold hover:bg-red-200 transition">
                     Decline
                   </button>
                 </div>
@@ -76,15 +69,12 @@ defmodule FlowopsWeb.MemberLive.Dashboard do
                 :for={member <- @committee_assignments}
                 class="bg-gray-50 rounded-xl p-5 border border-gray-100"
               >
-                <!-- Event Info -->
                 <div class="flex items-start justify-between mb-4">
                   <div>
                     <h3 class="text-lg font-bold text-gray-800">{member.event.title}</h3>
                     <p class="text-sm text-gray-500">📍 {member.event.location}</p>
                     <p class="text-sm text-gray-500">🕐 {member.event.start_time}</p>
-                    <p class="text-sm text-purple-600 font-medium mt-1">
-                      Role: {member.role || "Not specified"}
-                    </p>
+                    <p class="text-sm text-purple-600 font-medium mt-1">Role: {member.role || "Not specified"}</p>
                   </div>
                   <span class={[
                     "px-3 py-1 rounded-full text-xs font-bold uppercase",
@@ -128,47 +118,23 @@ defmodule FlowopsWeb.MemberLive.Dashboard do
 
                 <!-- Action Buttons -->
                 <div class="flex flex-wrap gap-2">
-                  <button
-                    :if={member.attendance_status == "absent"}
-                    phx-click="mark_present"
-                    phx-value-id={member.id}
-                    class="px-4 py-2 rounded-xl bg-green-600 text-white text-sm font-bold hover:bg-green-700 transition"
-                  >
+                  <button :if={member.attendance_status == "absent"} phx-click="mark_present" phx-value-id={member.id} class="px-4 py-2 rounded-xl bg-green-600 text-white text-sm font-bold hover:bg-green-700 transition">
                     ✅ Mark Present
                   </button>
 
                   <%= if member.attendance_status == "present" do %>
-                    <button
-                      phx-click="mark_left"
-                      phx-value-id={member.id}
-                      class="px-4 py-2 rounded-xl bg-red-500 text-white text-sm font-bold hover:bg-red-600 transition"
-                    >
+                    <button phx-click="mark_left" phx-value-id={member.id} class="px-4 py-2 rounded-xl bg-red-500 text-white text-sm font-bold hover:bg-red-600 transition">
                       🚪 Mark Left
                     </button>
-                    <button
-                      :if={member.work_status == "available"}
-                      phx-click="mark_busy"
-                      phx-value-id={member.id}
-                      class="px-4 py-2 rounded-xl bg-orange-500 text-white text-sm font-bold hover:bg-orange-600 transition"
-                    >
+                    <button :if={member.work_status == "available"} phx-click="mark_busy" phx-value-id={member.id} class="px-4 py-2 rounded-xl bg-orange-500 text-white text-sm font-bold hover:bg-orange-600 transition">
                       🔴 Mark Busy
                     </button>
-                    <button
-                      :if={member.work_status == "busy"}
-                      phx-click="mark_available"
-                      phx-value-id={member.id}
-                      class="px-4 py-2 rounded-xl bg-blue-500 text-white text-sm font-bold hover:bg-blue-600 transition"
-                    >
+                    <button :if={member.work_status == "busy"} phx-click="mark_available" phx-value-id={member.id} class="px-4 py-2 rounded-xl bg-blue-500 text-white text-sm font-bold hover:bg-blue-600 transition">
                       🟢 Mark Available
                     </button>
                   <% end %>
 
-                  <button
-                    :if={member.attendance_status == "left"}
-                    phx-click="mark_present"
-                    phx-value-id={member.id}
-                    class="px-4 py-2 rounded-xl bg-purple-600 text-white text-sm font-bold hover:bg-purple-700 transition"
-                  >
+                  <button :if={member.attendance_status == "left"} phx-click="mark_present" phx-value-id={member.id} class="px-4 py-2 rounded-xl bg-purple-600 text-white text-sm font-bold hover:bg-purple-700 transition">
                     🔄 Re-enter Premises
                   </button>
                 </div>
@@ -203,6 +169,7 @@ defmodule FlowopsWeb.MemberLive.Dashboard do
      |> assign(:page_title, "Member Dashboard")
      |> assign(:has_events, length(events) > 0)
      |> assign(:has_assignments, length(Invitations.list_committee_assignments(user_id)) > 0)
+     |> assign(:pending_count, length(Invitations.list_pending_invitations(user_id)))
      |> assign(:pending_invitations, Invitations.list_pending_invitations(user_id))
      |> assign(:committee_assignments, Invitations.list_committee_assignments(user_id))}
   end
@@ -217,6 +184,7 @@ defmodule FlowopsWeb.MemberLive.Dashboard do
          socket
          |> put_flash(:info, "Invitation accepted!")
          |> assign(:pending_invitations, Invitations.list_pending_invitations(user_id))
+         |> assign(:pending_count, length(Invitations.list_pending_invitations(user_id)))
          |> assign(:has_assignments, true)
          |> assign(:committee_assignments, Invitations.list_committee_assignments(user_id))}
 
@@ -233,7 +201,8 @@ defmodule FlowopsWeb.MemberLive.Dashboard do
         {:noreply,
          socket
          |> put_flash(:info, "Invitation declined.")
-         |> assign(:pending_invitations, Invitations.list_pending_invitations(user_id))}
+         |> assign(:pending_invitations, Invitations.list_pending_invitations(user_id))
+         |> assign(:pending_count, length(Invitations.list_pending_invitations(user_id)))}
 
       {:error, _} ->
         {:noreply, put_flash(socket, :error, "Could not decline invitation.")}

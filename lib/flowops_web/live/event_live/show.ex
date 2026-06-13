@@ -14,6 +14,7 @@ defmodule FlowopsWeb.EventLive.Show do
           current_scope={@current_scope}
           has_events={@has_events}
           has_assignments={@has_assignments}
+          pending_count={@pending_count}
         />
 
         <div class="max-w-4xl mx-auto p-6">
@@ -46,7 +47,6 @@ defmodule FlowopsWeb.EventLive.Show do
               </.link>
             </div>
 
-            <!-- Event Details Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
               <div class="bg-gray-50 rounded-xl p-4">
                 <p class="text-xs text-gray-400 uppercase font-semibold mb-1">Location</p>
@@ -185,7 +185,8 @@ defmodule FlowopsWeb.EventLive.Show do
      |> assign(:invitations, Invitations.list_invitations(event.id))
      |> assign(:committee_members, Invitations.list_committee_members(event.id))
      |> assign(:has_events, length(events) > 0)
-     |> assign(:has_assignments, length(Invitations.list_committee_assignments(user_id)) > 0)}
+     |> assign(:has_assignments, length(Invitations.list_committee_assignments(user_id)) > 0)
+     |> assign(:pending_count, length(Invitations.list_pending_invitations(user_id)))}
   end
 
   @impl true

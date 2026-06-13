@@ -15,6 +15,7 @@ defmodule FlowopsWeb.EventLive.Form do
           current_scope={@current_scope}
           has_events={@has_events}
           has_assignments={@has_assignments}
+          pending_count={@pending_count}
         />
 
         <div class="max-w-4xl mx-auto p-6">
@@ -98,6 +99,7 @@ defmodule FlowopsWeb.EventLive.Form do
      socket
      |> assign(:has_events, length(events) > 0)
      |> assign(:has_assignments, length(Invitations.list_committee_assignments(user_id)) > 0)
+     |> assign(:pending_count, length(Invitations.list_pending_invitations(user_id)))
      |> assign(:return_to, return_to(params["return_to"]))
      |> apply_action(socket.assigns.live_action, params)}
   end
