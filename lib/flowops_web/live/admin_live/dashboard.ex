@@ -100,12 +100,8 @@ defmodule FlowopsWeb.AdminLive.Dashboard do
                   </div>
                 </div>
                 <div class="flex items-center gap-2">
-                  <span :if={user.is_admin} class="px-2 py-1 rounded-full bg-red-100 text-red-700 text-xs font-bold">
-                    Admin
-                  </span>
-                  <span :if={!user.is_admin} class="px-2 py-1 rounded-full bg-gray-100 text-gray-600 text-xs font-bold">
-                    User
-                  </span>
+                  <span :if={user.is_admin} class="px-2 py-1 rounded-full bg-red-100 text-red-700 text-xs font-bold">Admin</span>
+                  <span :if={!user.is_admin} class="px-2 py-1 rounded-full bg-gray-100 text-gray-600 text-xs font-bold">User</span>
                   <button
                     :if={!user.is_admin}
                     phx-click="delete_user"
@@ -171,7 +167,6 @@ defmodule FlowopsWeb.AdminLive.Dashboard do
        |> put_flash(:error, "You are not authorized to access this page.")
        |> push_navigate(to: ~p"/events")}
     else
-      user_id = user.id
       users = Repo.all(from u in User, order_by: [asc: u.inserted_at])
       events = Repo.all(from e in Event, order_by: [desc: e.inserted_at])
 

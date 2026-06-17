@@ -32,6 +32,9 @@ defmodule FlowopsWeb.DashboardNav do
         <a href="/users/settings" class="text-slate-300 hover:text-white font-medium text-sm transition">
           Settings
         </a>
+        <a :if={@current_scope.user.is_admin} href="/admin" class="px-3 py-1 rounded-xl bg-red-500/20 text-red-300 hover:bg-red-500/30 font-medium text-sm transition">
+          Admin
+        </a>
       </div>
 
       <!-- Right Side -->

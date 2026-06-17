@@ -22,7 +22,7 @@ defmodule FlowopsWeb.EventLiveTest do
     test "lists all events", %{conn: conn, event: event} do
       {:ok, _index_live, html} = live(conn, ~p"/events")
 
-      assert html =~ "Listing Events"
+      assert html =~ "My Events"
       assert html =~ event.title
     end
 
@@ -31,7 +31,7 @@ defmodule FlowopsWeb.EventLiveTest do
 
       assert {:ok, form_live, _} =
                index_live
-               |> element("a", "New Event")
+               |> element("a", "+ New Event")
                |> render_click()
                |> follow_redirect(conn, ~p"/events/new")
 
@@ -92,7 +92,7 @@ defmodule FlowopsWeb.EventLiveTest do
     test "displays event", %{conn: conn, event: event} do
       {:ok, _show_live, html} = live(conn, ~p"/events/#{event}")
 
-      assert html =~ "Show Event"
+      assert html =~ "Event Details"
       assert html =~ event.title
     end
 
