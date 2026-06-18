@@ -18,12 +18,25 @@ defmodule Flowops.Release do
     {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :down, to: version))
   end
 
+  def seeds do
+    load_app()
+
+    alias Flowops.Repo
+    alias Flowops.Accounts.User
+
+    %User{}
+    |> User.changeset(%{
+      email: "demo@test.com",
+      password: "123456"
+    })
+    |> Repo.insert!()
+  end
+
   defp repos do
     Application.fetch_env!(@app, :ecto_repos)
   end
 
   defp load_app do
-    # Many platforms require SSL when connecting to the database
     Application.ensure_all_started(:ssl)
     Application.ensure_loaded(@app)
   end
