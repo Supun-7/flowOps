@@ -84,6 +84,97 @@ defmodule FlowopsWeb.UserLive.Login do
               </button>
             </.form>
 
+            <%!-- Demo Credentials Section --%>
+            <div class="mt-8 pt-6 border-t border-gray-200">
+              <div class="flex items-center gap-2 mb-4">
+                <div class="bg-amber-100 rounded-lg p-1.5">
+                  <.icon name="hero-sparkles-solid" class="size-4 text-amber-600" />
+                </div>
+                <h3 class="text-sm font-bold text-gray-700">Try Demo Accounts</h3>
+              </div>
+              <p class="text-xs text-gray-400 mb-3">Click any account below to auto-fill credentials</p>
+
+              <div class="space-y-2" id="demo-credentials" phx-hook=".FillCredentials">
+                <button
+                  type="button"
+                  class="demo-cred-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-violet-200 bg-violet-50 hover:bg-violet-100 transition-all cursor-pointer group"
+                  data-email="admin@gmail.com"
+                  data-password="Demo@2024Secure!"
+                >
+                  <span class="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-500 text-white text-xs font-bold shrink-0">👑</span>
+                  <div class="text-left">
+                    <p class="text-sm font-semibold text-gray-800 group-hover:text-violet-700">admin@gmail.com</p>
+                    <p class="text-xs text-gray-400">Admin — Event Organizer</p>
+                  </div>
+                  <.icon name="hero-arrow-right-circle" class="size-5 text-violet-300 group-hover:text-violet-500 ml-auto transition-colors" />
+                </button>
+
+                <button
+                  type="button"
+                  class="demo-cred-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-all cursor-pointer group"
+                  data-email="sarah@flowops.com"
+                  data-password="Demo@2024Secure!"
+                >
+                  <span class="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-xs font-bold shrink-0">S</span>
+                  <div class="text-left">
+                    <p class="text-sm font-semibold text-gray-800 group-hover:text-violet-700">sarah@flowops.com</p>
+                    <p class="text-xs text-gray-400">Committee Member</p>
+                  </div>
+                  <.icon name="hero-arrow-right-circle" class="size-5 text-gray-300 group-hover:text-violet-500 ml-auto transition-colors" />
+                </button>
+
+                <button
+                  type="button"
+                  class="demo-cred-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-all cursor-pointer group"
+                  data-email="james@flowops.com"
+                  data-password="Demo@2024Secure!"
+                >
+                  <span class="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 text-white text-xs font-bold shrink-0">J</span>
+                  <div class="text-left">
+                    <p class="text-sm font-semibold text-gray-800 group-hover:text-violet-700">james@flowops.com</p>
+                    <p class="text-xs text-gray-400">Committee Member</p>
+                  </div>
+                  <.icon name="hero-arrow-right-circle" class="size-5 text-gray-300 group-hover:text-violet-500 ml-auto transition-colors" />
+                </button>
+              </div>
+
+              <p class="text-xs text-center text-gray-400 mt-3">
+                Password for all: <code class="bg-gray-100 px-1.5 py-0.5 rounded text-gray-600 font-mono text-xs">Demo@2024Secure!</code>
+              </p>
+            </div>
+
+            <script :type={Phoenix.LiveView.ColocatedHook} name=".FillCredentials">
+              export default {
+                mounted() {
+                  this.el.querySelectorAll(".demo-cred-btn").forEach(btn => {
+                    btn.addEventListener("click", () => {
+                      const email = btn.dataset.email;
+                      const password = btn.dataset.password;
+
+                      const form = document.getElementById("login_form");
+                      if (!form) return;
+
+                      const emailInput = form.querySelector("input[name='user[email]']");
+                      const passwordInput = form.querySelector("input[name='user[password]']");
+
+                      if (emailInput) {
+                        emailInput.value = email;
+                        emailInput.dispatchEvent(new Event("input", { bubbles: true }));
+                      }
+                      if (passwordInput) {
+                        passwordInput.value = password;
+                        passwordInput.dispatchEvent(new Event("input", { bubbles: true }));
+                      }
+
+                      // Brief visual feedback
+                      btn.classList.add("ring-2", "ring-violet-400");
+                      setTimeout(() => btn.classList.remove("ring-2", "ring-violet-400"), 600);
+                    });
+                  });
+                }
+              }
+            </script>
+
           </div>
         </div>
 
